@@ -179,7 +179,7 @@ extern crate rustc_serialize;
 
 extern crate url;
 
-pub extern crate hyper;
+extern crate hyper;
 
 mod adapter;
 
