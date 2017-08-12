@@ -50,9 +50,10 @@ pub trait Serializer: Send + Sync + 'static {
 }
 
 /// A trait describing types which can concurrently deserialize other types from byte-streams.
-pub trait Deserializer: Send + Sync + 'static {
+pub trait Deserializer<'de>: Send + Sync + 'static {
     /// Deserialize `T` from `read`, returning the result.
-    fn deserialize<T: Deserialize, R: Read>(&self, read: &mut R) -> Result<T>;
+    fn deserialize<T, R: Read>(&self, read: &mut R) -> Result<T>
+        where T: Deserialize<'de>;
 }
 
 /// A deserializer which attempts to parse values from the response as a string.

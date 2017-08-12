@@ -47,8 +47,8 @@ impl Error for ::Error {
 }
 
 impl super::Deserializer for super::FromStrDeserializer {
-    fn deserialize<T: Deserialize, R: Read>(&self, read: &mut R) -> ::Result<T> {
-        use self::serde::de::value::ValueDeserializer;
+    fn deserialize<'de, T: Deserialize<'de>, R: Read>(&self, read: &mut R) -> ::Result<T> {
+        use self::serde::de::IntoDeserializer;
 
         let mut string = String::new();
         let string = try!(read.read_to_string(&mut string));

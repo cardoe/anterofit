@@ -45,7 +45,7 @@ impl serialize::Serializer for PrettySerializer {
 pub struct Deserializer;
 
 impl serialize::Deserializer for Deserializer {
-    fn deserialize<T: Deserialize, R: Read>(&self, read: &mut R) -> Result<T> {
+    fn deserialize<'de, T: Deserialize<'de>, R: Read>(&self, read: &mut R) -> Result<T> {
         Error::map_deserialize(self::serde_json::from_reader(read))
     }
 }

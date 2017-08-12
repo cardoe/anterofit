@@ -20,7 +20,7 @@ pub trait FromResponse: Send + Sized + 'static {
         where D: Deserializer;
 }
 
-impl<T> FromResponse for T where T: Deserialize + Send + 'static {
+impl<'de, T> FromResponse for T where T: Deserialize<'de> + Send + 'static {
     fn from_response<D>(des: &D, mut response: Response) -> Result<Self>
         where D: Deserializer {
         des.deserialize(&mut response)
@@ -71,10 +71,10 @@ pub struct WithRaw<T> {
     pub value: T,
 }
 
-impl<T> FromResponse for WithRaw<T> where T: Deserialize + Send + 'static {
+impl<'de, T> FromResponse for WithRaw<T> where T: Deserialize<'de> + Send + 'static {
     fn from_response<D>(des: &D, mut response: Response) -> Result<Self>
         where D: Deserializer {
-        let val = try!(des.deserialize(&mut response));
+        let val = des.deserialize(&mut response)?;
         Ok(WithRaw {
             raw: response,
             value: val
@@ -97,7 +97,7 @@ pub struct TryWithRaw<T> {
     pub result: Result<T>,
 }
 
-impl<T> FromResponse for TryWithRaw<T> where T: Deserialize + Send + 'static {
+impl<'de, T> FromResponse for TryWithRaw<T> where T: Deserialize<'de> + Send + 'static {
     fn from_response<D>(des: &D, mut response: Response) -> Result<Self>
         where D: Deserializer {
         let res = des.deserialize(&mut response);

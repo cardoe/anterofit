@@ -39,7 +39,7 @@ impl AdapterBuilder<NoSerializer, FromStrDeserializer, DefaultExecutor, NoInterc
     }
 }
 
-impl<S, D, E, I> AdapterBuilder<S, D, E, I> {
+impl<'de, S, D, E, I> AdapterBuilder<S, D, E, I> {
     /// Set the base URL that the adapter will use for all requests.
     ///
     /// If a base URL is not provided, then all service method URLs are assumed to be absolute.
@@ -109,7 +109,7 @@ impl<S, D, E, I> AdapterBuilder<S, D, E, I> {
 
     /// Set a new `Deserializer` impl for the adapter.
     pub fn deserializer<D_>(self, deserialize: D_) -> AdapterBuilder<S, D_, E, I>
-    where D_: Deserializer {
+    where D_: Deserializer<'de> {
         AdapterBuilder {
             base_url: self.base_url,
             client: self.client,
@@ -132,8 +132,8 @@ impl<S, D, E, I> AdapterBuilder<S, D, E, I> {
     }
 }
 
-impl<S, D, E, I> AdapterBuilder<S, D, E, I>
-where S: Serializer, D: Deserializer, E: Executor, I: Interceptor {
+impl<'de, S, D, E, I> AdapterBuilder<S, D, E, I>
+where S: Serializer, D: Deserializer<'de>, E: Executor, I: Interceptor {
 
     /// Using the supplied types, complete the adapter.
     ///
@@ -289,7 +289,7 @@ impl<S, D> Clone for Adapter_<S, D> {
     }
 }
 
-impl<S, D> Adapter<S, D> where S: Serializer, D: Deserializer {
+impl<'de, S, D> Adapter<S, D> where S: Serializer, D: Deserializer<'de> {
     /// Get a service trait object from an existing shared allocation.
     ///
     /// Requires that the service implement `UnsizeService`.
@@ -302,11 +302,11 @@ impl<S, D> Adapter<S, D> where S: Serializer, D: Deserializer {
 pub trait AbsAdapter: PrivAdapter {}
 
 /// Private adapter trait
-pub trait PrivAdapter: Send + 'static {
+pub trait PrivAdapter<'de>: Send + 'static {
     /// The adapter's serializer type.
     type Ser: Serializer;
     /// The adapter's deserializer type.
-    type De: Deserializer;
+    type De: Deserializer<'de>;
 
     fn ref_consts(&self) -> &AdapterConsts<Self::Ser, Self::De>;
 
